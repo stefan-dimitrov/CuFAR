@@ -1,4 +1,4 @@
-package com.clouway.cufar;
+package com.clouway.cufar.flag;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

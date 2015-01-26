@@ -1,6 +1,5 @@
 apply plugin: 'java'
 
-sourceCompatibility = 1.5
 version = '1.0'
 
 repositories {
@@ -9,6 +8,8 @@ repositories {
 
 dependencies {
     compile group: 'com.google.appengine', name: 'appengine-api-1.0-sdk', version: '1.9.15'
+    compile group: 'com.google.inject', name: 'guice', version: '3.0'
+    compile group: 'javax.inject', name: 'javax.inject'
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'org.jmock', name: 'jmock', version: '2.6.0'

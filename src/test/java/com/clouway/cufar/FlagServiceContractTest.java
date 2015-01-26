@@ -1,5 +1,8 @@
 package com.clouway.cufar;
 
+import com.clouway.cufar.flag.ChangeFlag;
+import com.clouway.cufar.flag.ChangeFlagOf;
+import com.clouway.cufar.function.DefaultFlagApplyFunction;
 import org.junit.Test;
 
 import java.util.Date;

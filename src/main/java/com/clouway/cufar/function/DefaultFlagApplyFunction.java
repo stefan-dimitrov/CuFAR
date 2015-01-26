@@ -1,4 +1,4 @@
-package com.clouway.cufar;
+package com.clouway.cufar.function;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

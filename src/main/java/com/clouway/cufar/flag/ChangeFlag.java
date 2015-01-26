@@ -1,4 +1,4 @@
-package com.clouway.cufar;
+package com.clouway.cufar.flag;
 
 /**
  * @author Stefan Dimitrov (stefan.dimitrov@clouway.com).

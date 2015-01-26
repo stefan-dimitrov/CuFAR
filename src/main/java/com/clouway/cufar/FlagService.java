@@ -1,5 +1,8 @@
 package com.clouway.cufar;
 
+import com.clouway.cufar.flag.ChangeFlag;
+import com.clouway.cufar.function.FlagApplyFunction;
+
 import java.util.Date;
 
 /**
