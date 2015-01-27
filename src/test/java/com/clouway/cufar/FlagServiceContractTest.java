@@ -66,10 +66,6 @@ public abstract class FlagServiceContractTest {
       return this.taskId;
     }
 
-    @Override
-    public Date getLastUpdateDate() {
-      return null;
-    }
   }
 
   @ChangeFlagOf(FakeTask.class)
@@ -92,10 +88,6 @@ public abstract class FlagServiceContractTest {
       return taskId;
     }
 
-    @Override
-    public Date getLastUpdateDate() {
-      return null;
-    }
   }
 
   protected FlagService flagService;

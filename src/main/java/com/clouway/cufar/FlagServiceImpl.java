@@ -35,11 +35,13 @@ public class FlagServiceImpl implements FlagService {
   public <T> void applyFlags(String attender, T object, FlagApplyFunction<T> flagApplyFunction, List<? extends ChangeFlag> changeFlags) {
 
     Map<String, Date> attenderSeenDates = flagBase.findSeenDatesByAttender(changeFlags, attender);
+    Map<String, Date> lastUpdateDates = flagBase.findUpdateDates(changeFlags);
 
     for(ChangeFlag changeFlag: changeFlags) {
       String flagName = flagNameFromChangeFlag(object, changeFlag);
 
-      boolean seenByAttender = wasFlagSeen(attenderSeenDates.get(changeFlag.getId()), changeFlag.getLastUpdateDate());
+      boolean seenByAttender = wasFlagSeen(attenderSeenDates.get(changeFlag.getId()),
+              lastUpdateDates.get(changeFlag.getId()));
 
       flagApplyFunction.apply(object, flagName, seenByAttender);
     }
@@ -58,7 +60,7 @@ public class FlagServiceImpl implements FlagService {
       return true;
     }
 
-    if (attendanceDate.before(updateDate)) {
+    if (attendanceDate == null || attendanceDate.before(updateDate)) {
       return false;
     }
     return true;

@@ -1,6 +1,5 @@
 package com.clouway.cufar.flag;
 
-import java.util.Date;
 
 /**
  * @author Stefan Dimitrov (stefan.dimitrov@clouway.com).
@@ -8,5 +7,4 @@ import java.util.Date;
 public interface ChangeFlag<T> {
   String getId();
   T getReferenceId();
-  Date getLastUpdateDate();
 }

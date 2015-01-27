@@ -14,4 +14,6 @@ public interface FlagBase {
   String storeOrUpdate(ChangeFlag<?> changeFlag, Date lastUpdateDate);
 
   Map<String,Date> findSeenDatesByAttender(List<? extends ChangeFlag> changeFlagList, String attender);
+
+  Map<String, Date> findUpdateDates(List<? extends ChangeFlag> changeFlagList);
 }

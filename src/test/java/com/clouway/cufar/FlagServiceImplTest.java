@@ -18,6 +18,7 @@ public class FlagServiceImplTest extends FlagServiceContractTest {
 
   @Mock private FlagBase flagBase;
   protected Map<String, Date> fakeAttenderSeenDates;
+  protected Map<String, Date> fakeUpdateDates;
 
   @Override
   protected FlagService newFlagService() {
@@ -29,6 +30,7 @@ public class FlagServiceImplTest extends FlagServiceContractTest {
     super.setUp();
 
     fakeAttenderSeenDates = new Hashtable<String, Date>();
+    fakeUpdateDates = new Hashtable<String, Date>();
   }
 
   @Override
@@ -37,6 +39,9 @@ public class FlagServiceImplTest extends FlagServiceContractTest {
     context.checking(new Expectations() {{
       oneOf(flagBase).findSeenDatesByAttender(with(equal(Lists.newArrayList(taskScheduleChange))), with(equal(attender)));
       will(returnValue(fakeAttenderSeenDates));
+
+      oneOf(flagBase).findUpdateDates(with(equal(Lists.newArrayList(taskScheduleChange))));
+      will(returnValue(fakeUpdateDates));
     }});
 
     super.neverMadeAnyChanges();
@@ -45,13 +50,16 @@ public class FlagServiceImplTest extends FlagServiceContractTest {
   @Override
   public void neverSeenTheChanges() throws Exception {
 
-    fakeAttenderSeenDates.put("fakeScheduleChange", new Date(0l));
+    fakeUpdateDates.put("fakeScheduleChange", dateOfUpdate);
 
     context.checking(new Expectations() {{
       oneOf(flagBase).storeOrUpdate(taskScheduleChange, dateOfUpdate);
 
       oneOf(flagBase).findSeenDatesByAttender(with(equal(Lists.newArrayList(taskScheduleChange))), with(equal(attender)));
       will(returnValue(fakeAttenderSeenDates));
+
+      oneOf(flagBase).findUpdateDates(with(equal(Lists.newArrayList(taskScheduleChange))));
+      will(returnValue(fakeUpdateDates));
     }});
 
     super.neverSeenTheChanges();
