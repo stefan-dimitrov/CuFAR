@@ -4,10 +4,16 @@ version = '1.0'
 
 repositories {
     mavenCentral()
+
+    flatDir {
+        dirs 'lib'
+    }
 }
 
 dependencies {
     compile group: 'com.google.appengine', name: 'appengine-api-1.0-sdk', version: '1.9.15'
+    compile name: 'twig-persist', version: '2.0-rc'
+
     compile group: 'com.google.inject', name: 'guice', version: '3.0'
     compile group: 'javax.inject', name: 'javax.inject'
 
