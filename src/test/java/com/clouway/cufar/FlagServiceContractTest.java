@@ -2,9 +2,11 @@ package com.clouway.cufar;
 
 import com.clouway.cufar.flag.ChangeFlag;
 import com.clouway.cufar.flag.ChangeFlagOf;
-import com.clouway.cufar.function.DefaultFlagApplyFunction;
+import com.clouway.cufar.function.FlagApplyFunction;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -13,9 +15,9 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Stefan Dimitrov (stefan.dimitrov@clouway.com).
  */
-public class FlagServiceContractTest {
+public abstract class FlagServiceContractTest {
 
-  class Task {
+  class FakeTask {
     private Long id;
     private boolean commentsChangeSeen;
     private boolean scheduleChangeSeen;
@@ -41,12 +43,12 @@ public class FlagServiceContractTest {
     }
   }
 
-  @ChangeFlagOf(Task.class)
-  class TaskScheduleChange implements ChangeFlag<Long> {
+  @ChangeFlagOf(FakeTask.class)
+  class FakeTaskScheduleChange implements ChangeFlag<Long> {
 
     private Long taskId;
 
-    public TaskScheduleChange(Long taskId) {
+    public FakeTaskScheduleChange(Long taskId) {
       this.taskId = taskId;
     }
 
@@ -56,12 +58,12 @@ public class FlagServiceContractTest {
     }
   }
 
-  @ChangeFlagOf(Task.class)
-  class TaskCommentsChange implements ChangeFlag<Long> {
+  @ChangeFlagOf(FakeTask.class)
+  class FakeTaskCommentsChange implements ChangeFlag<Long> {
 
     private Long taskId;
 
-    TaskCommentsChange(Long taskId) {
+    FakeTaskCommentsChange(Long taskId) {
       this.taskId = taskId;
     }
 
@@ -72,21 +74,40 @@ public class FlagServiceContractTest {
   }
 
   private FlagService flagService;
-  private Task task;
-  private String attender = "fake_attender";
+  private FakeTask task;
+  private final String attender = "fake_attender";
 
-  private Date january12;
-  private Date january15;
-  private Date january19;
-  private Date january20;
-  private Date january21;
-  private Date january22;
+  private final Date january15 = newDate(2015, 1, 15);
+  private final Date january20 = newDate(2015, 1, 20);
+  private final Date january22 = newDate(2015, 1, 22);
+
+  private FlagApplyFunction<FakeTask> fakeFlagApplyFunction = new FlagApplyFunction<FakeTask>() {
+    @Override
+    public void apply(FakeTask object, String flagName, Boolean seen) {
+      if ("ScheduleChange".equals(flagName)) {
+        object.setScheduleChangeSeen(seen);
+      }
+
+      else if ("CommentsChange".equals(flagName)) {
+        object.setCommentsChangeSeen(seen);
+      }
+    }
+  };
+
+
+  protected abstract FlagService newFlagService();
+
+  @Before
+  public final void setUp() throws Exception {
+    task = new FakeTask();
+    flagService = newFlagService();
+  }
 
   @Test
   public void neverMadeAnyChanges() throws Exception {
 
-    ChangeFlag taskScheduleChange = new TaskScheduleChange(task.getId());
-    flagService.applyFlags(attender, task, new DefaultFlagApplyFunction<Task>(), taskScheduleChange);
+    ChangeFlag taskScheduleChange = new FakeTaskScheduleChange(task.getId());
+    flagService.applyFlags(attender, task, fakeFlagApplyFunction, taskScheduleChange);
 
     assertThat(task.isScheduleChangeSeen(), is(true));
   }
@@ -94,55 +115,67 @@ public class FlagServiceContractTest {
   @Test
   public void neverSeenTheChanges() throws Exception {
 
-    TaskScheduleChange taskScheduleChange = new TaskScheduleChange(task.getId());
+    FakeTaskScheduleChange taskScheduleChange = new FakeTaskScheduleChange(task.getId());
 
-    flagService.addChange(taskScheduleChange, january12);
+    flagService.addChange(taskScheduleChange, january15);
 
-    flagService.applyFlags(attender, task, new DefaultFlagApplyFunction<Task>(), taskScheduleChange);
+    flagService.applyFlags(attender, task, fakeFlagApplyFunction, taskScheduleChange);
 
     assertThat(task.isScheduleChangeSeen(), is(false));
   }
 
   @Test
   public void changesNotSeen() throws Exception {
-    TaskScheduleChange taskScheduleChange = new TaskScheduleChange(task.getId());
+    FakeTaskScheduleChange taskScheduleChange = new FakeTaskScheduleChange(task.getId());
 
     flagService.addChange(taskScheduleChange, january20);
 
     flagService.seeChange(taskScheduleChange, attender, january15);
 
-    flagService.applyFlags(attender, task, new DefaultFlagApplyFunction<Task>(), taskScheduleChange);
+    flagService.applyFlags(attender, task, fakeFlagApplyFunction, taskScheduleChange);
 
     assertThat(task.isScheduleChangeSeen(), is(false));
   }
 
   @Test
   public void changesSeen() throws Exception {
-    TaskScheduleChange taskScheduleChange = new TaskScheduleChange(task.getId());
+    FakeTaskScheduleChange taskScheduleChange = new FakeTaskScheduleChange(task.getId());
 
     flagService.addChange(taskScheduleChange, january20);
 
     flagService.seeChange(taskScheduleChange, attender, january22);
 
-    flagService.applyFlags(attender, task, new DefaultFlagApplyFunction<Task>(), taskScheduleChange);
+    flagService.applyFlags(attender, task, fakeFlagApplyFunction, taskScheduleChange);
 
     assertThat(task.isScheduleChangeSeen(), is(false));
   }
 
   @Test
   public void multipleChanges() throws Exception {
-    TaskScheduleChange taskScheduleChange = new TaskScheduleChange(task.getId());
-    TaskCommentsChange taskCommentsChange = new TaskCommentsChange(task.getId());
+    FakeTaskScheduleChange taskScheduleChange = new FakeTaskScheduleChange(task.getId());
+    FakeTaskCommentsChange taskCommentsChange = new FakeTaskCommentsChange(task.getId());
 
     flagService.addChange(taskScheduleChange, january20);
     flagService.addChange(taskCommentsChange, january20);
 
-    flagService.seeChange(taskScheduleChange, attender, january19);
-    flagService.seeChange(taskCommentsChange, attender, january21);
+    flagService.seeChange(taskScheduleChange, attender, january15);
+    flagService.seeChange(taskCommentsChange, attender, january22);
 
-    flagService.applyFlags(attender, task, new DefaultFlagApplyFunction<Task>(), taskScheduleChange, taskCommentsChange);
+    flagService.applyFlags(attender, task, fakeFlagApplyFunction, taskScheduleChange, taskCommentsChange);
 
     assertThat(task.isScheduleChangeSeen(), is(false));
     assertThat(task.isCommentsChangeSeen(), is(true));
+  }
+
+  private Date newDate(int year, int month, int day) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, year);
+    calendar.set(Calendar.MONTH, month);
+    calendar.set(Calendar.DAY_OF_MONTH, day);
+    calendar.set(Calendar.HOUR, 0);
+    calendar.set(Calendar.MINUTE, 0);
+    calendar.set(Calendar.SECOND, 1);
+
+    return calendar.getTime();
   }
 }
