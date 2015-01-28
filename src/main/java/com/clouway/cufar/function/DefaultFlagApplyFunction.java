@@ -11,7 +11,7 @@ public class DefaultFlagApplyFunction<T> implements FlagApplyFunction<T> {
   public void apply(T object, String flagName, Boolean seen) {
     String setterName = String.format("set%sSeen", flagName);
     try {
-      Method setterMethod = object.getClass().getMethod(setterName, Boolean.class);
+      Method setterMethod = object.getClass().getDeclaredMethod(setterName, boolean.class);
       setterMethod.invoke(object, seen);
 
     } catch (NoSuchMethodException e) {
